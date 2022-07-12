@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"practice/mqttPractice"
 	"practice/netPractice"
+	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
@@ -27,7 +28,13 @@ func main() {
 	err=conn.Publish("ping","pong2",0)
 	mqttPractice.HandleError(err)
 
-	
+	go func() {
+		for{
+			time.Sleep(1 * time.Second)
+			err=conn.Publish("ping","pong2",0)
+		}
+	}()
+
 	netPractice.HttpPractice()
 	
 }
