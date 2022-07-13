@@ -12,7 +12,6 @@ import (
 
 func main() {
 	
-	
 	ConnectToAWSIoT()
 	server.Init()
 	
