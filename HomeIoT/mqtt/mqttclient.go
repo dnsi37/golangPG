@@ -1,6 +1,7 @@
 package mqtt
 
 import (
+	iottopic "HomeIoT/mqtt/topic"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -19,6 +20,46 @@ var mDefaultHandler MQTT.MessageHandler = func(conn MQTT.Client, msg MQTT.Messag
 	fmt.Printf("TOPIC: %s\n", msg.Topic())
 	fmt.Printf("MSG: %s\n", msg.Payload())
 }
+// ConnectToAWSIoT 
+// init function to access and receive conn pointer
+func ConnectToAWSIoT () *AWSIoTConnection {
+
+	const endPoint string = "a2d6gny2gotvvn-ats.iot.ap-northeast-2.amazonaws.com"
+	const certDir string = "C:/Users/junwookim/Desktop/IOT/golangCrt"
+	conn, err := NewConnection(Config{
+		KeyPath:  certDir+"/private.pem.key",
+		CertPath: certDir + "/certificate.pem.crt",
+		CAPath:   certDir + "/AmazonRootCA1.pem",
+		ClientId: "ping_client",
+		Endpoint: endPoint,
+	})
+	HandleError(err)
+	err=conn.SubscribeWithHandler("ping",0, func(client MQTT.Client, message MQTT.Message) {
+		fmt.Println(string(message.Payload()))
+	})
+	HandleError(err)
+	err=conn.Publish("ping","pong2",0)
+	HandleError(err)
+
+	return conn
+
+}
+func NewConnection (config Config) (*AWSIoTConnection,error) {
+
+	connection := AWSIoTConnection{}
+	if err := connection.init(config); err!= nil {
+		return nil,err
+	}
+	connection.client = MQTT.NewClient(connection.options)
+	token := connection.client.Connect()
+	token.Wait()
+	if err := token.Error(); err != nil {
+		return nil,err
+	}else {
+		fmt.Println(token)
+		return &connection,nil
+	}
+}
 
 
 type Config struct {
@@ -33,6 +74,7 @@ type AWSIoTConnection struct {
 	client  MQTT.Client
 	options *MQTT.ClientOptions
 }
+
 
 
 func (c *AWSIoTConnection) init (config Config) error {
@@ -52,28 +94,13 @@ func (c *AWSIoTConnection) init (config Config) error {
 	})
 	c.options.SetOnConnectHandler(func(c MQTT.Client) {
 		fmt.Println("connected")
-		c.Publish(Topic_Home,0,false,"Server Connected")
+		c.Publish(iottopic.Home,0,false,"Server Connected")
 	})
 	c.options.SetAutoReconnect(true)
 	return nil
 }
 
-func NewConnection (config Config) (*AWSIoTConnection,error) {
 
-	connection := AWSIoTConnection{}
-	if err := connection.init(config); err!= nil {
-		return nil,err
-	}
-	connection.client = MQTT.NewClient(connection.options)
-	token := connection.client.Connect()
-	token.Wait()
-	if err := token.Error(); err != nil {
-		return nil,err
-	}else {
-		fmt.Println(token)
-		return &connection,nil
-	}
-}
 func (c *AWSIoTConnection) Disconnect () bool {
 	if c.client.IsConnected() {
 		c.client.Disconnect(0)
