@@ -8,16 +8,16 @@ import (
 
 type LedOrder struct {
 	Order bool
-	json  *json.RawMessage
+	Json  *json.RawMessage
 }
 
-func (l *LedOrder) On() *LedOrder {
+func CreateOrderOn() *LedOrder {
 	jsonMsg := json.RawMessage(`{"order" : "on" }`)
 	newOrder := &LedOrder{true, &jsonMsg}
 	return newOrder
 }
 
-func (l *LedOrder) Off() *LedOrder {
+func CreateOrderOff() *LedOrder {
 	jsonMsg := json.RawMessage(`{"order" : "off" }`)
 	newOrder := &LedOrder{false, &jsonMsg}
 	return newOrder

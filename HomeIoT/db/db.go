@@ -4,15 +4,18 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func Init() {
 
-	db, err := sql.Open("mysql", "junwoo:junwoo123@tcp(junwoodb.clcwfeh6dtye.ap-northeast-2.rds.amazonaws.com:3306)/db_assignment")
+	fmt.Println("db")
+	db, err := sql.Open("mysql", "junwoo:junwoo123@tcp(junwoodb.clcwfeh6dtye.ap-northeast-2.rds.amazonaws.com:3306)/iotdb")
 	if err != nil {
 		log.Fatal(err)
 	}
-	rows,err := db.Query("select * from orders")
+	rows,err := db.Query("select * from led_status")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,4 +29,9 @@ func Init() {
 	}
 	defer db.Close()
 
+}
+
+func GetLedStatus ( db *sql.DB ) {
+
+	db.Query("select * from led_status")
 }

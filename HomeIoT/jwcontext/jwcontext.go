@@ -2,19 +2,24 @@ package jwcontext
 
 import (
 	"HomeIoT/mqtt"
+	"database/sql"
 	"fmt"
+	"log"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
 type JwContext struct {
 	MC *mqtt.AWSIoTConnection
+	DB *sql.DB
 }
 
+// Init : initialize context as global variable 
 func Init ()  *JwContext {
 	Context.ConnectToAWSIoT()
 	return Context
 }
+// Global Variable :: careful when it be used 
 var Context *JwContext = &JwContext{}
 
 func (c *JwContext) ConnectToAWSIoT (){
@@ -37,4 +42,13 @@ func (c *JwContext) ConnectToAWSIoT (){
 	mqtt.HandleError(err)
 
 	c.MC = conn
+}
+
+func (c *JwContext) InitDB ()  {
+
+	db, err := sql.Open("mysql", "junwoo:junwoo123@tcp(junwoodb.clcwfeh6dtye.ap-northeast-2.rds.amazonaws.com:3306)/iotdb")
+	if err != nil {
+		log.Fatal(err)
+	}	
+	c.DB = db
 }

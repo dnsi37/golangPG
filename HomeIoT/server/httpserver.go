@@ -2,9 +2,12 @@ package server
 
 import (
 	"HomeIoT/jwcontext"
+	"HomeIoT/mqtt"
+	iottopic "HomeIoT/mqtt/topic"
 	"HomeIoT/server/router"
 	"encoding/json"
 	"fmt"
+
 	"io"
 	"net/http"
 )
@@ -36,10 +39,23 @@ func ledController (w http.ResponseWriter, r *http.Request, rou *router.Router) 
 		w.WriteHeader(400)
 		w.Write([]byte(msg))
 	}
-	if jwcontext.Context.MC != nil {
-		fmt.Println("context not null")
-		jwcontext.Context.MC.Publish("ping","pong2",0)
+	
+	defer w.WriteHeader(200)
+	defer w.Write([]byte("Request successfully worked"))
+	if dto.Order == "on" {
+		fmt.Println("LED ON")
+		order := mqtt.CreateOrderOn()
+		if jwcontext.Context.MC != nil {
+			jwcontext.Context.MC.Publish(iottopic.LedControl,order.Json,0)
+		}
+	} else if dto.Order == "off" {
+		fmt.Println("LED OFF")
+		order := mqtt.CreateOrderOff()
+		if jwcontext.Context.MC != nil {
+			jwcontext.Context.MC.Publish(iottopic.LedControl,order.Json,0)
+		}
 	}
+	
 	
 	
 }
