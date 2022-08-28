@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
@@ -17,6 +18,7 @@ type JwContext struct {
 // Init : initialize context as global variable 
 func Init ()  *JwContext {
 	Context.ConnectToAWSIoT()
+	go Context.InitDB()
 	return Context
 }
 // Global Variable :: careful when it be used 
@@ -51,4 +53,20 @@ func (c *JwContext) InitDB ()  {
 		log.Fatal(err)
 	}	
 	c.DB = db
+	defer db.Close()
+	
+	// Check db connection periodically and retry if conn is lost 
+	for {
+		err := c.DB.Ping()
+		if err!= nil {
+			fmt.Println("DB Ping Error", err)
+			c.DB.Close()
+			c.DB , err = sql.Open("mysql", "junwoo:junwoo123@tcp(junwoodb.clcwfeh6dtye.ap-northeast-2.rds.amazonaws.com:3306)/iotdb")
+			if err!= nil {
+				fmt.Println("Failed to reconnect DB", err)
+			}
+		}
+		time.Sleep(time.Second * 60)
+	}
+	
 }

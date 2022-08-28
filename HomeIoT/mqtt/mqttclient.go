@@ -20,8 +20,14 @@ var mDefaultHandler MQTT.MessageHandler = func(conn MQTT.Client, msg MQTT.Messag
 	fmt.Printf("TOPIC: %s\n", msg.Topic())
 	fmt.Printf("MSG: %s\n", msg.Payload())
 }
-// ConnectToAWSIoT 
-// init function to access and receive conn pointer
+/* ConnectToAWSIoT 
+ desc : init function to access and receive conn pointer
+ return : AWSIoTConnection
+
+ ToDo :
+ 1. subscribe topics 
+ 2. set handler for topics 
+ */
 func ConnectToAWSIoT () *AWSIoTConnection {
 
 	const endPoint string = "a2d6gny2gotvvn-ats.iot.ap-northeast-2.amazonaws.com"

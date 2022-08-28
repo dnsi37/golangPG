@@ -1,12 +1,14 @@
 package server
 
 import (
+	"HomeIoT/db"
 	"HomeIoT/jwcontext"
 	"HomeIoT/mqtt"
 	iottopic "HomeIoT/mqtt/topic"
 	"HomeIoT/server/router"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"io"
 	"net/http"
@@ -17,13 +19,13 @@ func Init( context *jwcontext.JwContext )  {
 	defer http.ListenAndServe(":8080", nil)
 
 	ledRouter := router.NewRouter(apiLed,context)
-	ledRouter.PostHandler("/control",ledController)
+	ledRouter.PostHandler("/control",ledControlHandler)
+	ledRouter.GetHandler("/status", ledStatusHandler)
 
-	
 	
 }
 
-func ledController (w http.ResponseWriter, r *http.Request, rou *router.Router) {
+func ledControlHandler (w http.ResponseWriter, r *http.Request, rou *router.Router) {
 
 	body,err := io.ReadAll(r.Body)
 	handlerErrD(err)
@@ -56,13 +58,27 @@ func ledController (w http.ResponseWriter, r *http.Request, rou *router.Router) 
 		}
 	}
 	
+}
+func ledStatusHandler (w http.ResponseWriter, r *http.Request, rou *router.Router){
 	
+
 	
+	status,err := db.GetLedStatus(jwcontext.Context.DB)
+	if err != nil {
+		w.WriteHeader(400)
+		w.Write([]byte(err.Error()))
+	}
+
+	resMsg,err := json.Marshal(status)
+	handlerErrD(err)
+	w.WriteHeader(200)
+	w.Write(resMsg)
+
 }
 
 func handlerErrD ( err error) {
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 

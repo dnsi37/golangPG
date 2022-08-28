@@ -23,6 +23,9 @@ func NewRouter(baseUrl string , context *jwcontext.JwContext ) *Router {
 	return &router
 }
 
+func (r *Router) GetContext () *jwcontext.JwContext {
+	return r.context
+}
 
 
 func (r *Router) ChangeBaseURL(baseUrl string) {
