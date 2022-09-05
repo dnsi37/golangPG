@@ -2,6 +2,7 @@ package jwcontext
 
 import (
 	"HomeIoT/mqtt"
+	iottopic "HomeIoT/mqtt/topic"
 	"database/sql"
 	"fmt"
 	"log"
@@ -36,11 +37,21 @@ func (c *JwContext) ConnectToAWSIoT (){
 		Endpoint: endPoint,
 	})
 	mqtt.HandleError(err)
-	err=conn.SubscribeWithHandler("ping",0, func(client MQTT.Client, message MQTT.Message) {
+	err=conn.SubscribeWithHandler(iottopic.Home,0, func(client MQTT.Client, message MQTT.Message) {
 		fmt.Println(string(message.Payload()))
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	err=conn.SubscribeWithHandler(iottopic.LedStatus,0,ledStatusHandler)
+	if err != nil {
+		log.Fatal(err)
+	}
 	mqtt.HandleError(err)
-	err=conn.Publish("ping","pong2",0)
+	err=conn.Publish(iottopic.Home,"Back end Server Connected",0)
+	if err != nil {
+		log.Fatal(err)
+	}
 	mqtt.HandleError(err)
 
 	c.MC = conn
