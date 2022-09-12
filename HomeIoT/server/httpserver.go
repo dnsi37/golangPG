@@ -21,6 +21,7 @@ func Init( context *jwcontext.JwContext )  {
 	ledRouter := router.NewRouter(apiLed,context)
 	ledRouter.PostHandler("/control",ledControlHandler)
 	ledRouter.GetHandler("/status", ledStatusHandler)
+	http.HandleFunc("/",rootHandler)
 
 	
 }
@@ -82,7 +83,7 @@ func handlerErrD ( err error) {
 	}
 }
 
-/*
+
 func rootHandler(w http.ResponseWriter, req *http.Request) {
 
 	fmt.Printf("req.Host: %v\n", req.Host)
@@ -90,7 +91,7 @@ func rootHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Printf("req.Header: %v\n", req.Header)
 	w.Write([]byte("Hello world"))
 }
-
+/*
 type staticHandler struct {
 	http.Handler
 }
