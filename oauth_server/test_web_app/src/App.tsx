@@ -25,6 +25,13 @@ function App() {
           src="http://static.nid.naver.com/oauth/small_g_in.PNG"
         />
       </a>
+      <button
+        onClick={() => {
+          console.log("hg");
+        }}
+      >
+        버튼
+      </button>
     </div>
   );
 }
